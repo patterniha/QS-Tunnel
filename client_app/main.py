@@ -30,6 +30,8 @@ if platform == "android":
 
 
 class QSTunnelApp(App):
+    MAX_LOG_LINES = 200
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tunnel_thread = None
@@ -208,6 +210,10 @@ class QSTunnelApp(App):
             if code.endswith(suffix):
                 code = code[: -len(suffix)]
 
+            # exec is required here because main_client.py performs all
+            # initialisation at module level (socket creation, config loading)
+            # and ends with asyncio.run(main()), so it cannot be imported as a
+            # regular module without executing those side-effects immediately.
             namespace = {"__name__": "__main__", "__file__": script_path}
             exec(compile(code, script_path, "exec"), namespace)  # noqa: S102
             self.tunnel_namespace = namespace
@@ -259,8 +265,8 @@ class QSTunnelApp(App):
             return
         self.log_output.text += text + "\n"
         lines = self.log_output.text.split("\n")
-        if len(lines) > 200:
-            self.log_output.text = "\n".join(lines[-200:])
+        if len(lines) > self.MAX_LOG_LINES:
+            self.log_output.text = "\n".join(lines[-self.MAX_LOG_LINES :])
 
     def on_stop(self):
         if self.running:
