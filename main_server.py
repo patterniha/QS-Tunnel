@@ -48,8 +48,9 @@ else:
 
 wan_receive_bind_addr = ("0.0.0.0", int(config["receive_port"]))
 
-recv_domain_labels = label_domain(config["recv_domain"].encode().lower())
-len_recv_domain_labels = len(recv_domain_labels)
+all_recv_domains_labels = []
+for recv_domain in config["recv_domains"]:
+    all_recv_domains_labels.append(label_domain(recv_domain.encode().lower()))
 
 h_out_addr = (config["h_out_address"].rsplit(":", 1)[0], int(config["h_out_address"].rsplit(":", 1)[1]))
 
@@ -131,14 +132,23 @@ async def wan_recv():
             qid, qflags, all_labels, qtype, next_question = handle_dns_request(raw_data)
             if qtype != RECV_QUERY_TYPE_INT:
                 raise ValueError("invalid qtype!")
-            domain_labels = all_labels[-len_recv_domain_labels:]
-            assert [label.lower() for label in domain_labels] == recv_domain_labels
+
+            accepted_recv_domain_labels_len = 0
+            for recv_domain_labels in all_recv_domains_labels:
+                len_recv_domain_labels = len(recv_domain_labels)
+                if all_labels[-len_recv_domain_labels:] == recv_domain_labels:
+                    accepted_recv_domain_labels_len = len_recv_domain_labels
+                    break
+            if accepted_recv_domain_labels_len == 0:
+                raise ValueError("no accepted recv_domain_labels")
+
+
         except Exception as e:
             print("receive invalid request:", raw_data)
             continue
 
         try:
-            data_with_header = b"".join(all_labels[:-len_recv_domain_labels])
+            data_with_header = b"".join(all_labels[:-accepted_recv_domain_labels_len])
             if not data_with_header:
                 raise ValueError("no header")
             client_id, data_offset, fragment_part, last_fragment, chunk_data = get_chunk_data(data_with_header,

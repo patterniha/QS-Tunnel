@@ -1,6 +1,6 @@
 {
   "mode": "n-1",
   "receive_port": 53,
-  "recv_domain": "",
+  "recv_domains": [],
   "h_out_address": "127.0.0.1:443"
 }

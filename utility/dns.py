@@ -67,7 +67,7 @@ def handle_question(data: bytes, offset: int) -> tuple[list, int, int]:
             raise ValueError
         lable_s = offset + 1
         offset = lable_s + label_len
-        labels.append(data[lable_s:offset])
+        labels.append(data[lable_s:offset].lower())
     raise ValueError
 
 
