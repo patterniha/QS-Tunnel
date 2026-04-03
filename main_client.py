@@ -9,8 +9,6 @@ import os
 import sys
 import time
 
-import aiohttp
-
 from utility.dns import encode_qname, build_dns_query, insert_dots
 from utility.base32 import number_to_base32_lower, b32encode_nopad_lower
 from data_cap import get_base32_final_domains, get_chunk_len
@@ -272,6 +270,7 @@ async def nat_keep_alive():
 
 
 async def get_public_ip_from_json_api(url: str, ip_name: str):
+    import aiohttp
     async with aiohttp.ClientSession() as session:
         async with session.get(url, timeout=5) as response:
             response.raise_for_status()
