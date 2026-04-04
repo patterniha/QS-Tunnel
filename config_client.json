@@ -8,7 +8,6 @@
   "max_domain_len": 99,
   "max_sub_len": 63,
   "retries": 1,
-  "packets_send_interval": 0.001,
   "send_sock_numbers": 512,
   "my_public_ip": "ezping"
 }

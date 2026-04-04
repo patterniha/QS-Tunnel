@@ -7,7 +7,6 @@ import socket
 import json
 import os
 import sys
-import time
 
 from utility.dns import encode_qname, build_dns_query, insert_dots
 from utility.base32 import number_to_base32_lower, b32encode_nopad_lower
@@ -26,8 +25,6 @@ TOTAL_CLIENT_IDS = 1 << 5 * CLIENT_ID_WIDTH
 TOTAL_DATA_OFFSET = 1 << 5 * DATA_OFFSET_WIDTH
 TOTAL_DATA_OFFSET_MINUS_ONE = TOTAL_DATA_OFFSET - 1
 
-TIME_RESOLUTION = time.get_clock_info("perf_counter").resolution
-
 
 def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socket.socket:
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -35,15 +32,6 @@ def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socke
     if bind_addr is not None:
         s.bind(bind_addr)
     return s
-
-
-async def exact_sleep(delay: float):
-    loop = asyncio.get_running_loop()
-    now = loop.time()
-    while True:
-        await asyncio.sleep(TIME_RESOLUTION)
-        if loop.time() - now > delay:
-            return
 
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_client.json")) as f:
@@ -56,13 +44,6 @@ elif use_mode == "n-1":
     client_id_bytes = number_to_base32_lower(random.randint(0, TOTAL_CLIENT_IDS - 1), CLIENT_ID_WIDTH)
 else:
     sys.exit("invalid mode!")
-
-packets_send_interval = config["packets_send_interval"]
-
-if ((sys.platform == "win32") and (packets_send_interval < 0.1)) or (packets_send_interval < 0.001):
-    PACKETS_SEND_SLEEP = exact_sleep
-else:
-    PACKETS_SEND_SLEEP = asyncio.sleep
 
 send_sock_list = []
 # ulimit -n 32768
@@ -130,7 +111,7 @@ async def wan_send_from_queue(queue: asyncio.Queue):
                         continue
                     break
                 break
-            await PACKETS_SEND_SLEEP(packets_send_interval)
+            await asyncio.sleep(0.0000001)
 
 
 async def h_recv(my_public_ip: str):
