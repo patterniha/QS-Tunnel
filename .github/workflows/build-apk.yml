@@ -1,0 +1,76 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            git \
+            zip \
+            unzip \
+            openjdk-17-jdk \
+            autoconf \
+            libtool \
+            pkg-config \
+            zlib1g-dev \
+            libncurses5-dev \
+            libncursesw5-dev \
+            cmake \
+            libffi-dev \
+            libssl-dev \
+            automake
+
+      - name: Install buildozer and cython
+        run: pip install buildozer cython
+
+      - name: Prepare client build directory
+        run: |
+          cp main_client.py client_app/
+          cp data_cap.py client_app/
+          cp config_client.json client_app/
+          mkdir -p client_app/utility
+          cp utility/base32.py client_app/utility/
+          cp utility/dns.py client_app/utility/
+          touch client_app/utility/__init__.py
+
+      - name: Build APK
+        working-directory: client_app
+        env:
+          AIOHTTP_NO_EXTENSIONS: "1"
+          MULTIDICT_NO_EXTENSIONS: "1"
+          YARL_NO_EXTENSIONS: "1"
+          FROZENLIST_NO_EXTENSIONS: "1"
+        run: buildozer android debug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: QSTunnel-APK
+          path: client_app/bin/*.apk
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: client_app/bin/*.apk
