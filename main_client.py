@@ -12,7 +12,7 @@ from utility.dns import encode_qname, build_dns_query, insert_dots
 from utility.base32 import number_to_base32_lower, b32encode_nopad_lower
 from data_cap import get_base32_final_domains, get_chunk_len
 
-CLIENT_ID_WIDTH = 10
+CLIENT_ID_WIDTH = 7
 
 PACKETS_QUEUE_SIZE = 1024
 
