@@ -156,7 +156,7 @@ async def h_recv(my_public_ip: str):
             continue
 
         final_domains = get_base32_final_domains(raw_data, data_offset, chunk_len, send_domain_encode_qname,
-                                                 max_sub_len, b"", DATA_OFFSET_WIDTH, max_encoded_domain_len,
+                                                 max_sub_len, DATA_OFFSET_WIDTH, max_encoded_domain_len,
                                                  client_id_bytes)
         if not final_domains:
             continue

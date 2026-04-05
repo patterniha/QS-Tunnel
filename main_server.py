@@ -13,7 +13,7 @@ from utility.base32 import b32decode_nopad
 from utility.dns import label_domain, handle_dns_request, \
     create_noerror_empty_response
 from utility.packets import build_udp_payload_v4, build_ipv4_header, UDP_PROTO
-from data_cap import get_crc32_bytes, get_chunk_data
+from data_cap import get_chunk_data
 
 ASSEMBLE_TIME = 5.0
 
@@ -200,15 +200,11 @@ async def wan_recv():
                     if data:
                         try:
                             data = b32decode_nopad(data)
-                            final_data = data[:-4]
-                            chksum = data[-4:]
-                            assert final_data and len(chksum) == 4 and get_crc32_bytes(final_data,
-                                                                                       b"") == chksum
                         except Exception as e:
                             print("data-error", e)
                         else:
                             try:
-                                await loop.sock_sendto(client_sock, final_data, h_out_addr)
+                                await loop.sock_sendto(client_sock, data, h_out_addr)
                             except Exception:
                                 client_sock.close()
                                 client_h_recv_task.cancel()

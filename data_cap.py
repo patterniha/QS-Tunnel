@@ -1,15 +1,8 @@
 import sys
-import zlib
 
 from utility.base32 import b32encode_nopad_lower, BASE32_LIST_LOWER, number_to_base32_lower, base32_to_number, \
     BASE32_LOOKUP
 from utility.dns import insert_dots
-
-
-def get_crc32_bytes(data: bytes, chksum_pass: bytes) -> bytes:
-    if chksum_pass:
-        return zlib.crc32(data + chksum_pass).to_bytes(4, byteorder="big")
-    return zlib.crc32(data).to_bytes(4, byteorder="big")
 
 
 def compute_max_m(s: int, max_allowed: int) -> int:
@@ -37,10 +30,10 @@ def get_chunk_len(max_encoded_domain_len: int, qname_encoded_len: int, max_sub_l
 
 
 def get_base32_final_domains(data: bytes, data_offset: int, chunk_len: int, qname_encoded: bytes, max_sub_len: int,
-                             chksum_pass: bytes, data_offset_width: int,
+                             data_offset_width: int,
                              max_encoded_domain_len: int, client_id_bytes: bytes) -> \
         list[bytes]:
-    data = b32encode_nopad_lower(data + get_crc32_bytes(data, chksum_pass))
+    data = b32encode_nopad_lower(data)
     if (len(data) + chunk_len - 1) // chunk_len > 64:
         print("ERROR: max_domain_len is too small, packet is not sent, len:", len(data))
         return []
