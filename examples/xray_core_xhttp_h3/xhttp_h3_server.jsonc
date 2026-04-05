@@ -1,0 +1,84 @@
+{
+  "log": {
+    "loglevel": "warning", "access": "none"
+  },
+
+  "policy": {
+    "levels": {
+      "0": {
+        "uplinkOnly": 0,
+        "downlinkOnly": 0
+      }
+    }
+  },
+
+  "inbounds": [
+    {		
+      "tag": "proxy",
+      "protocol": "vless",
+	  "listen": "", // set
+	  "port": 0, // set
+      "settings": {
+		"decryption":"none",
+        "clients": [
+          {
+            "id": "", // set
+            "level": 0,
+            "email": "" // set
+          } //, other clients ...
+        ]
+      },
+      "streamSettings": {
+		"security": "tls",
+		"tlsSettings": {
+		  "serverName": "", // set
+		  "alpn": ["h3"],
+		  "certificates": [
+		    {
+			  "certificateFile": "", // set
+			  "keyFile": ""  // set
+		    }
+		  ]
+		},
+        "network": "xhttp",
+        "xhttpSettings": {
+		  "mode": "stream-one",
+		  "host": "", // set
+		  "path": "/",
+		  "extra": {
+			"xPaddingBytes": "1-1",
+			"noSSEHeader": true
+		  }
+		},
+		"finalmask": {
+          "udp": [
+		    {
+              "type": "salamander",
+              "settings": {
+                "password": "" // set
+              }
+            }
+		  ],
+		  "quicParams": {
+			"congestion": "bbr",
+			"debug": false,
+			"maxIdleTimeout": 30,
+			"keepAlivePeriod": 10,
+			"disablePathMTUDiscovery": true
+		  }
+        }
+      }
+    }
+  ],
+
+  "outbounds": [
+    {
+      "tag": "direct-out",
+      "protocol": "direct"
+    }
+  ],
+  
+  "routing": {
+  }
+  
+}
