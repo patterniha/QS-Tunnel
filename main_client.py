@@ -19,8 +19,6 @@ PACKETS_QUEUE_SIZE = 1024
 
 DATA_OFFSET_WIDTH = 3
 
-SEND_QUERY_TYPE_INT = 1
-
 TOTAL_CLIENT_IDS = 1 << 5 * CLIENT_ID_WIDTH
 
 TOTAL_DATA_OFFSET = 1 << 5 * DATA_OFFSET_WIDTH
@@ -37,6 +35,8 @@ def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socke
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_client.json")) as f:
     config = json.loads(f.read())
+
+send_query_type_int = config["send_query_type_int"]
 
 info_encryption_pass = hashlib.sha256(config["info_encryption_pass"].encode()).digest()
 
@@ -179,14 +179,14 @@ async def h_recv(my_public_ip: str):
             info_domain_bytes = insert_dots(sub_info, max_sub_len) + send_domain_encode_qname
 
             send_socks_datas.append((send_sock_index, send_sock_list[send_sock_index],
-                                     build_dns_query(info_domain_bytes, query_id, SEND_QUERY_TYPE_INT)))
+                                     build_dns_query(info_domain_bytes, query_id, send_query_type_int)))
             send_sock_index = (send_sock_index + 1) % len(send_sock_list)
             query_id = (query_id + 1) & 0xFFFF
             ###
         for final_domain in final_domains:
             send_socks_datas.append(
                 (send_sock_index, send_sock_list[send_sock_index],
-                 build_dns_query(final_domain, query_id, SEND_QUERY_TYPE_INT)))
+                 build_dns_query(final_domain, query_id, send_query_type_int)))
             send_sock_index = (send_sock_index + 1) % len(send_sock_list)
             query_id = (query_id + 1) & 0xFFFF
 

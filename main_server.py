@@ -18,8 +18,6 @@ from data_cap import get_chunk_data, bytes_xor
 
 ASSEMBLE_TIME = 5.0
 
-RECV_QUERY_TYPE_INT = 1
-
 CLIENT_ID_WIDTH = 7
 
 DATA_OFFSET_WIDTH = 3
@@ -133,8 +131,6 @@ async def wan_recv():
 
         try:
             qid, qflags, all_labels, qtype, next_question = handle_dns_request(raw_data)
-            if qtype != RECV_QUERY_TYPE_INT:
-                raise ValueError("invalid qtype!")
 
             accepted_recv_domain_labels_len = 0
             for recv_domain_labels in all_recv_domains_labels:

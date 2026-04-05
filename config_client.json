@@ -10,5 +10,6 @@
   "retries": 1,
   "send_sock_numbers": 512,
   "my_public_ip": "ezping",
+  "send_query_type_int": 1,
   "info_encryption_pass": ""
 }
