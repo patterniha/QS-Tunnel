@@ -5,6 +5,10 @@ from utility.base32 import b32encode_nopad_lower, BASE32_LIST_LOWER, number_to_b
 from utility.dns import insert_dots
 
 
+def bytes_xor(data: bytes, password: bytes):
+    return bytes([data[i] ^ password[i] for i in range(len(data))])
+
+
 def compute_max_m(s: int, max_allowed: int) -> int:
     """
     Find maximum m such that: m + ⌈m / s⌉ ≤ max_allowed

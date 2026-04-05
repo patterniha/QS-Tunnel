@@ -7,10 +7,11 @@ import socket
 import json
 import os
 import sys
+import hashlib
 
 from utility.dns import encode_qname, build_dns_query, insert_dots
 from utility.base32 import number_to_base32_lower, b32encode_nopad_lower
-from data_cap import get_base32_final_domains, get_chunk_len
+from data_cap import get_base32_final_domains, get_chunk_len, bytes_xor
 
 CLIENT_ID_WIDTH = 7
 
@@ -36,6 +37,8 @@ def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socke
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_client.json")) as f:
     config = json.loads(f.read())
+
+info_encryption_pass = hashlib.sha256(config["info_encryption_pass"].encode()).digest()
 
 use_mode = config["mode"]
 if use_mode == "1-1":
@@ -125,10 +128,10 @@ async def h_recv(my_public_ip: str):
     send_ip_index = random.randint(0, len(dns_ips) - 1)
     queue_index = random.randint(0, len(queues_list) - 1)
 
-    info_raw_data = b32encode_nopad_lower(
+    info_raw_data = b32encode_nopad_lower(bytes_xor(
         socket.inet_pton(socket.AF_INET, my_public_ip) + wan_main_socket_port.to_bytes(2,
                                                                                        byteorder="big") + socket.inet_pton(
-            socket.AF_INET, fake_send_ip) + fake_send_port.to_bytes(2, byteorder="big"))
+            socket.AF_INET, fake_send_ip) + fake_send_port.to_bytes(2, byteorder="big"), info_encryption_pass))
     info_raw_header_data = b"78" + info_raw_data
 
     while True:
@@ -171,7 +174,7 @@ async def h_recv(my_public_ip: str):
         if (last_wan_recv_time is None) or (loop.time() - last_wan_recv_time > 25):
             ###
             contain_info = True
-            sub_info = number_to_base32_lower(info_offset, DATA_OFFSET_WIDTH) + info_raw_header_data
+            sub_info = client_id_bytes + number_to_base32_lower(info_offset, DATA_OFFSET_WIDTH) + info_raw_header_data
             info_offset = (info_offset + 1) & TOTAL_DATA_OFFSET_MINUS_ONE
             info_domain_bytes = insert_dots(sub_info, max_sub_len) + send_domain_encode_qname
 

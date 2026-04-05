@@ -7,13 +7,14 @@ import socket
 import json
 import os
 import sys
+import hashlib
 
 from data_handler import DataHandler
 from utility.base32 import b32decode_nopad
 from utility.dns import label_domain, handle_dns_request, \
     create_noerror_empty_response
 from utility.packets import build_udp_payload_v4, build_ipv4_header, UDP_PROTO
-from data_cap import get_chunk_data
+from data_cap import get_chunk_data, bytes_xor
 
 ASSEMBLE_TIME = 5.0
 
@@ -37,6 +38,8 @@ def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socke
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_server.json")) as f:
     config = json.loads(f.read())
+
+info_decryption_pass = hashlib.sha256(config["info_decryption_pass"].encode()).digest()
 
 use_mode = config["mode"]
 if use_mode == "1-1":
@@ -159,7 +162,7 @@ async def wan_recv():
             only_info = False
             if fragment_part == 63 and not last_fragment:
                 only_info = True
-                info_data = b32decode_nopad(chunk_data)
+                info_data = bytes_xor(b32decode_nopad(chunk_data), info_decryption_pass)
                 if len(info_data) != 12:
                     raise ValueError("invalid info!")
                 client_ip_bytes = info_data[:4]

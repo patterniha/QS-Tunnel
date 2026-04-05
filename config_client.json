@@ -9,5 +9,6 @@
   "max_sub_len": 63,
   "retries": 1,
   "send_sock_numbers": 512,
-  "my_public_ip": "ezping"
+  "my_public_ip": "ezping",
+  "info_encryption_pass": ""
 }

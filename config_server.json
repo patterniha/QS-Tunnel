@@ -2,5 +2,6 @@
   "mode": "n-1",
   "receive_port": 53,
   "recv_domains": [],
-  "h_out_address": "127.0.0.1:443"
+  "h_out_address": "127.0.0.1:443",
+  "info_decryption_pass": ""
 }
