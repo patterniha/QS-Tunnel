@@ -5,6 +5,8 @@ from utility.packets import build_ipv4_header, build_udp_payload_v4, UDP_PROTO
 
 ########### CONFIGURATION:
 
+# If the other side is behind NAT, you need to run "nat_keep_alive_test.py" on the other side to keep the port open.
+
 SPOOFED_SRC_IP = "1.1.1.1"
 DST_IP = "2.2.2.2"
 UDP_SRC_PORT = 443
