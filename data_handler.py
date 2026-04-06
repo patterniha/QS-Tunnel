@@ -7,10 +7,8 @@ class DataHandler:
         self.offsets_size = offsets_size
         self.assemble_time = assemble_time
         self.lock = asyncio.Lock()
-        self.mpp_list = []
+        self.mpp_list: list = [None] * offsets_size
         self.active_keys_queue = asyncio.Queue(maxsize=offsets_size)
-        for _ in range(offsets_size):
-            self.mpp_list.append(None)
         self.cleaner_task = asyncio.create_task(self.cleanup())
 
     async def cleanup(self) -> None:

@@ -256,7 +256,7 @@ async def nat_keep_alive():
 async def get_public_ip_from_json_api(url: str, ip_name: str):
     import aiohttp
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=5) as response:
+        async with session.get(url, timeout=10) as response:
             response.raise_for_status()
             data = await response.json()
             return data.get(ip_name)
