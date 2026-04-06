@@ -7,7 +7,7 @@ package.domain = org.qstunnel
 source.dir = .
 source.include_exts = py,json
 
-version = 0.1
+version = 1.0
 
 requirements = python3,kivy,aiohttp
 

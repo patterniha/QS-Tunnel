@@ -74,3 +74,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: client_app/bin/*.apk
+          generate_release_notes: true
+          body: |
+            ## Donate
+            **USDT (BEP20):** `0x76a768B53Ca77B43086946315f0BDF21156bF424`
