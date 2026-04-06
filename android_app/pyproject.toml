@@ -1,0 +1,19 @@
+[project]
+name = "qs-tunnel"
+version = "1.0.0"
+description = "QS-Tunnel DNS Tunnel Client"
+
+[tool.flet]
+org = "io.github.patterniha"
+product = "QS-Tunnel"
+
+[tool.flet.android]
+adaptive_icon_background = "#16213e"
+
+[tool.flet.android.permission]
+INTERNET = true
+FOREGROUND_SERVICE = true
+FOREGROUND_SERVICE_DATA_SYNC = true
+POST_NOTIFICATIONS = true
+WAKE_LOCK = true
+ACCESS_NETWORK_STATE = true
