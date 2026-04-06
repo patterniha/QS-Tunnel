@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install system dependencies
         run: |
@@ -42,7 +42,7 @@ jobs:
             automake
 
       - name: Install buildozer and cython
-        run: pip install buildozer cython
+        run: pip install setuptools buildozer cython
 
       - name: Prepare client build directory
         run: |
