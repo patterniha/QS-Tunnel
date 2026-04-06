@@ -26,10 +26,16 @@ jobs:
           cp utility/dns.py client_app/utility/
           touch client_app/utility/__init__.py
 
+      - name: Add missing buildozer.spec settings
+        run: |
+          echo "android.accept_sdk_license = True" >> client_app/buildozer.spec
+
       - name: Build APK with Buildozer Docker
         run: |
           docker run --rm \
+            --privileged \
             -v ${{ github.workspace }}/client_app:/home/user/hostcwd \
+            -e USER=user \
             kivy/buildozer:latest \
             android debug
 
