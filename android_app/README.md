@@ -86,13 +86,13 @@ Edit the JSON configuration in the app. Fields:
 ```
 android_app/
 ├── main.py              # Flet UI (app entry point)
-├── tunnel_client.py     # Refactored client logic (start/stop)
 ├── prepare_sources.sh   # Copies shared modules before build
 ├── requirements.txt     # Dependencies (flet + aiohttp)
 ├── pyproject.toml       # Build configuration
 └── README.md            # This file
 
 # Copied at build time by prepare_sources.sh:
+# ├── main_client.py     ← from root main_client.py (TunnelClient class)
 # ├── data_cap.py        ← from root data_cap.py
 # └── utility/
 #     ├── __init__.py     ← created (empty, required for Python package)

@@ -209,5 +209,6 @@ __marimo__/
 
 # Android app - build artifacts and build-time copied sources
 android_app/build/
+android_app/main_client.py
 android_app/data_cap.py
 android_app/utility/

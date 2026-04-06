@@ -14,7 +14,8 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 echo "Copying shared sources into android_app/ ..."
 
-cp "$ROOT_DIR/data_cap.py" "$SCRIPT_DIR/data_cap.py"
+cp "$ROOT_DIR/main_client.py" "$SCRIPT_DIR/main_client.py"
+cp "$ROOT_DIR/data_cap.py"    "$SCRIPT_DIR/data_cap.py"
 
 mkdir -p "$SCRIPT_DIR/utility"
 touch "$SCRIPT_DIR/utility/__init__.py"

@@ -3,7 +3,7 @@ import asyncio
 
 import flet as ft
 
-from tunnel_client import TunnelClient
+from main_client import TunnelClient
 
 DEFAULT_CONFIG = """{
   "mode": "n-1",

@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - 'android_app/**'
+      - 'main_client.py'
       - 'data_cap.py'
       - 'utility/base32.py'
       - 'utility/dns.py'
