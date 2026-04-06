@@ -16,34 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            git \
-            zip \
-            unzip \
-            openjdk-17-jdk \
-            autoconf \
-            libtool \
-            pkg-config \
-            zlib1g-dev \
-            libncurses5-dev \
-            libncursesw5-dev \
-            cmake \
-            libffi-dev \
-            libssl-dev \
-            automake
-
-      - name: Install buildozer and cython
-        run: pip install setuptools buildozer cython
-
       - name: Prepare client build directory
         run: |
           cp main_client.py client_app/
@@ -54,26 +26,24 @@ jobs:
           cp utility/dns.py client_app/utility/
           touch client_app/utility/__init__.py
 
-      - name: Build APK
-        working-directory: client_app
-        env:
-          AIOHTTP_NO_EXTENSIONS: "1"
-          MULTIDICT_NO_EXTENSIONS: "1"
-          YARL_NO_EXTENSIONS: "1"
-          FROZENLIST_NO_EXTENSIONS: "1"
-        run: buildozer android debug
+      - name: Build APK with Buildozer Action
+        uses: ArtemSBulgakov/buildozer-action@v1
+        id: buildozer
+        with:
+          workdir: client_app
+          buildozer_version: stable
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: QSTunnel-APK
-          path: client_app/bin/*.apk
+          path: ${{ steps.buildozer.outputs.filename }}
 
       - name: Create release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: client_app/bin/*.apk
+          files: ${{ steps.buildozer.outputs.filename }}
           generate_release_notes: true
           body: |
             ## Donate
