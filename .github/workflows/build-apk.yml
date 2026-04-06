@@ -27,7 +27,7 @@ jobs:
           touch client_app/utility/__init__.py
 
       - name: Build APK with Buildozer Action
-        uses: ArtemSBulgakov/buildozer-action@v1
+        uses: kivy/buildozer-action@v1          # ← fixed: was ArtemSBulgakov/buildozer-action@v1
         id: buildozer
         with:
           workdir: client_app
