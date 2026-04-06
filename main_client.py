@@ -8,6 +8,7 @@ import json
 import os
 import sys
 import hashlib
+import re
 
 from utility.dns import encode_qname, build_dns_query, insert_dots
 from utility.base32 import number_to_base32_lower, b32encode_nopad_lower
@@ -253,20 +254,29 @@ async def nat_keep_alive():
             raise
 
 
-async def get_public_ip_from_json_api(url: str, ip_name: str):
+async def fetch_ip(url: str):
     import aiohttp
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, timeout=10) as response:
+        async with session.get(url) as response:
             response.raise_for_status()
-            data = await response.json()
-            return data.get(ip_name)
+            text = await response.text()
+
+            ip_regex = re.compile(r"\b\d{1,3}(?:\.\d{1,3}){3}\b")
+            match = ip_regex.search(text)
+            if match:
+                return match.group(0)
+            raise ValueError(f"No ip address found in {url}")
 
 
 async def main():
     loop = asyncio.get_running_loop()
     my_public_ip = config["my_public_ip"]
     if my_public_ip == "ezping":
-        my_public_ip = await get_public_ip_from_json_api("https://ezping.ir/geoip", "ip")
+        my_public_ip = await fetch_ip("https://ezping.ir/geoip")
+    elif my_public_ip == "ipnumberia":
+        my_public_ip = await fetch_ip("https://ipnumberia.com/")
+    elif my_public_ip == "ipmyp":
+        my_public_ip = await fetch_ip("https://ipmyp.ir/")
     for _ in range(3):
         data = os.urandom(random.randint(257, 499))
         await loop.sock_sendto(wan_main_socket, data, (fake_send_ip, fake_send_port))
