@@ -1,5 +1,3 @@
-import sys
-
 from utility.base32 import b32encode_nopad_lower, BASE32_LIST_LOWER, number_to_base32_lower, base32_to_number, \
     BASE32_LOOKUP
 from utility.dns import insert_dots
@@ -63,7 +61,7 @@ def get_base32_final_domains(data: bytes, data_offset: int, chunk_len: int, qnam
             c_loop = False
         final_domain = insert_dots(chunk_data, max_sub_len) + qname_encoded
         if len(final_domain) > max_encoded_domain_len:
-            sys.exit("Calculation Error!!!")
+            raise ValueError("Calculation error: domain length exceeds maximum")
         final_b_domains.append(final_domain)
         i += 1
 

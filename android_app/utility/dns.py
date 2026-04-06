@@ -65,9 +65,9 @@ def handle_question(data: bytes, offset: int) -> tuple[list, int, int]:
             return labels, qtype, next_question
         if label_len > 63:
             raise ValueError
-        lable_s = offset + 1
-        offset = lable_s + label_len
-        labels.append(data[lable_s:offset].lower())
+        label_s = offset + 1
+        offset = label_s + label_len
+        labels.append(data[label_s:offset].lower())
     raise ValueError
 
 
