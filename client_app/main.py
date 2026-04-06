@@ -55,6 +55,17 @@ class QSTunnelApp(App):
 
         root = BoxLayout(orientation="vertical", padding=10, spacing=5)
 
+        donate_label = Label(
+            text="@patterniha\nDonate USDT (BEP20):\n0x76a768B53Ca77B43086946315f0BDF21156bF424",
+            size_hint_y=None,
+            height=70,
+            font_size="13sp",
+            halign="center",
+            color=(0.9, 0.8, 0.2, 1),
+        )
+        donate_label.bind(size=donate_label.setter("text_size"))
+        root.add_widget(donate_label)
+
         self.status_label = Label(
             text="Status: Stopped",
             size_hint_y=None,
@@ -112,9 +123,10 @@ class QSTunnelApp(App):
             "max_domain_len": 99,
             "max_sub_len": 63,
             "retries": 1,
-            "packets_send_interval": 0.001,
             "send_sock_numbers": 512,
             "my_public_ip": "ezping",
+            "send_query_type_int": 1,
+            "info_encryption_pass": "",
         }
 
     def _load_config_text(self):
