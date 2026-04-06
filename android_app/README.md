@@ -24,19 +24,29 @@ pip install flet
 
 ## Run on Desktop (for testing)
 
+First copy the shared sources, then run:
+
 ```bash
+bash android_app/prepare_sources.sh
 cd android_app
 flet run main.py
 ```
 
 ## Build APK
 
+From the repository root:
+
 ```bash
+bash android_app/prepare_sources.sh
 cd android_app
 flet build apk
 ```
 
 The APK will be generated in `build/apk/`.
+
+The `prepare_sources.sh` script copies the shared client-side modules (`data_cap.py`, `utility/base32.py`, `utility/dns.py`) from the project root into `android_app/` before building. This avoids duplicating source files — updates to those shared modules are automatically picked up on the next build.
+
+A GitHub Actions workflow (`.github/workflows/build-apk.yml`) automates this: it runs `prepare_sources.sh` then `flet build apk` on every push that touches relevant files.
 
 ## Android Permissions
 
@@ -77,14 +87,17 @@ Edit the JSON configuration in the app. Fields:
 android_app/
 ├── main.py              # Flet UI (app entry point)
 ├── tunnel_client.py     # Refactored client logic (start/stop)
-├── data_cap.py          # Data encoding/chunking
-├── utility/
-│   ├── __init__.py
-│   ├── base32.py        # Base32 encoding
-│   └── dns.py           # DNS protocol utilities
+├── prepare_sources.sh   # Copies shared modules before build
 ├── requirements.txt     # Dependencies (flet + aiohttp)
 ├── pyproject.toml       # Build configuration
 └── README.md            # This file
+
+# Copied at build time by prepare_sources.sh:
+# ├── data_cap.py        ← from root data_cap.py
+# └── utility/
+#     ├── __init__.py     ← created (empty, required for Python package)
+#     ├── base32.py       ← from root utility/base32.py
+#     └── dns.py          ← from root utility/dns.py
 ```
 
 ## Notes
@@ -92,3 +105,4 @@ android_app/
 - The default `send_sock_numbers` is set to 64 (vs 512 on desktop) to be compatible with Android's file descriptor limits.
 - Server-side files (`main_server.py`, `config_server.json`, `packets.py`, `numba_checksum.py`) are not included.
 - Only `aiohttp` is required as an external dependency (no `numba`).
+- The empty `utility/__init__.py` is required by Python to recognize `utility/` as a package so that `from utility.dns import ...` works.

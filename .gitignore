@@ -207,5 +207,7 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
-# Flet build artifacts
+# Android app - build artifacts and build-time copied sources
 android_app/build/
+android_app/data_cap.py
+android_app/utility/

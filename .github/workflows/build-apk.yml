@@ -1,0 +1,37 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'android_app/**'
+      - 'data_cap.py'
+      - 'utility/base32.py'
+      - 'utility/dns.py'
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      - name: Install Flet
+        run: pip install flet
+
+      - name: Copy shared sources into android_app
+        run: bash android_app/prepare_sources.sh
+
+      - name: Build APK
+        run: cd android_app && flet build apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: qs-tunnel-apk
+          path: android_app/build/apk/*.apk
