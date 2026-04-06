@@ -11,10 +11,55 @@ permissions:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
+
+    env:
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
+      ANDROID_HOME: /usr/local/lib/android/sdk
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git zip unzip autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev cmake \
+            libffi-dev libssl-dev build-essential ccache \
+            libltdl-dev libsqlite3-dev libbz2-dev libreadline-dev \
+            libjpeg-dev libfreetype6-dev sed
+
+      - name: Install Android SDK command line tools
+        run: |
+          sudo mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          cd /tmp
+          curl -fo commandlinetools.zip https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          sudo unzip -q commandlinetools.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          sudo mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
+          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+            "platform-tools" \
+            "platforms;android-34" \
+            "build-tools;34.0.0" \
+            "ndk;25.2.9519653"
+
+      - name: Install Python build tools
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install cython==0.29.36 buildozer==1.5.0
 
       - name: Prepare client build directory
         run: |
@@ -26,18 +71,16 @@ jobs:
           cp utility/dns.py client_app/utility/
           touch client_app/utility/__init__.py
 
-      - name: Add missing buildozer.spec settings
+      - name: Patch buildozer.spec
         run: |
-          echo "android.accept_sdk_license = True" >> client_app/buildozer.spec
+          grep -q '^android.accept_sdk_license' client_app/buildozer.spec || echo 'android.accept_sdk_license = True' >> client_app/buildozer.spec
+          grep -q '^android.sdk_path' client_app/buildozer.spec || echo "android.sdk_path = $ANDROID_SDK_ROOT" >> client_app/buildozer.spec
+          grep -q '^android.ndk_path' client_app/buildozer.spec || echo "android.ndk_path = $ANDROID_SDK_ROOT/ndk/25.2.9519653" >> client_app/buildozer.spec
 
-      - name: Build APK with Buildozer Docker
+      - name: Build APK
+        working-directory: client_app
         run: |
-          docker run --rm \
-            --privileged \
-            -v ${{ github.workspace }}/client_app:/home/user/hostcwd \
-            -e USER=user \
-            kivy/buildozer:latest \
-            android debug
+          buildozer android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
