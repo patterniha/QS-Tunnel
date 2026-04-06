@@ -26,24 +26,24 @@ jobs:
           cp utility/dns.py client_app/utility/
           touch client_app/utility/__init__.py
 
-      - name: Build APK with Buildozer Action
-        uses: kivy/buildozer-action@v1          # ← fixed: was ArtemSBulgakov/buildozer-action@v1
-        id: buildozer
-        with:
-          workdir: client_app
-          buildozer_version: stable
+      - name: Build APK with Buildozer Docker
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}/client_app:/home/user/hostcwd \
+            kivy/buildozer:latest \
+            android debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: QSTunnel-APK
-          path: ${{ steps.buildozer.outputs.filename }}
+          path: client_app/bin/*.apk
 
       - name: Create release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: ${{ steps.buildozer.outputs.filename }}
+          files: client_app/bin/*.apk
           generate_release_notes: true
           body: |
             ## Donate
