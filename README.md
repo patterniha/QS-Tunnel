@@ -48,3 +48,8 @@ https://github.com/patterniha/QQ-Tunnel
 سایر موارد کانفیگ در QQ-Tunnel توضیح داده شده است و در نهایت در سمت کلاینت بعد از جای گزاری مقادیر در config_client.json دستور python main_client.py را اجرا کنید و در سمت سرور نیز پس از جایگزاری مقادیر در config_server.json دستور python main_server.py را اجرا کنید (برای اجرا نیاز به پایتون حداقل 3.12 میباشد همچنین سمت سرور نیاز به کتابخانه numba دارد و سمت کلاینت نیز در صورت استفاده از "سرویسهای تعیین ip پابلیک" نیاز به کتابخانه aiohttp دارد) 
 
 حمایت فراموش نشود به امید روزهای روشن.
+
+
+https://t.me/projectXhttp
+
+https://t.me/patterniha
