@@ -11,5 +11,6 @@
   "send_sock_numbers": 512,
   "my_public_ip": "ezping",
   "send_query_type_int": 1,
+  "packets_send_interval": 0.0001,
   "info_encryption_pass": ""
 }

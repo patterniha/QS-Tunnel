@@ -34,8 +34,24 @@ def create_v4_udp_dgram_socket(blocking: bool, bind_addr: None | tuple) -> socke
     return s
 
 
+async def accurate_sleep(delay: float):
+    loop = asyncio.get_running_loop()
+    now = loop.time()
+    while True:
+        await asyncio.sleep(0.0000001)
+        if loop.time() - now > delay:
+            return
+
+
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_client.json")) as f:
     config = json.loads(f.read())
+
+packets_send_interval = config["packets_send_interval"]
+
+if ((sys.platform == "win32") and (packets_send_interval < 0.1)) or (packets_send_interval < 0.001):
+    packets_send_sleep = accurate_sleep
+else:
+    packets_send_sleep = asyncio.sleep
 
 send_query_type_int = config["send_query_type_int"]
 
@@ -115,7 +131,7 @@ async def wan_send_from_queue(queue: asyncio.Queue):
                         continue
                     break
                 break
-            await asyncio.sleep(0.0000001)
+            await packets_send_sleep(packets_send_interval)
 
 
 async def h_recv(my_public_ip: str):
