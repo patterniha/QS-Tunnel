@@ -20,6 +20,8 @@ PACKETS_QUEUE_SIZE = 1024
 
 DATA_OFFSET_WIDTH = 3
 
+DROP_DELAYED_PACKETS_TIME = 1
+
 TOTAL_CLIENT_IDS = 1 << 5 * CLIENT_ID_WIDTH
 
 TOTAL_DATA_OFFSET = 1 << 5 * DATA_OFFSET_WIDTH
@@ -102,8 +104,9 @@ async def wan_send_from_queue(queue: asyncio.Queue):
     loop = asyncio.get_running_loop()
     while True:
         send_socks_datas, send_ip_str, entry_time, curr_try, contain_info = await queue.get()
-        if loop.time() - entry_time > 1:
-            continue  # drop
+        if loop.time() - entry_time > DROP_DELAYED_PACKETS_TIME:
+            print("drop delayed packet")
+            continue
 
         if curr_try & 1 == 0:
             iter_range = range(len(send_socks_datas))

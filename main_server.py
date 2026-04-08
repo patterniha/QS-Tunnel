@@ -16,7 +16,7 @@ from utility.dns import label_domain, handle_dns_request, \
 from utility.packets import build_udp_payload_v4, build_ipv4_header, UDP_PROTO
 from data_cap import get_chunk_data, bytes_xor
 
-ASSEMBLE_TIME = 5.0
+ASSEMBLE_TIME = 13.0
 
 CLIENT_ID_WIDTH = 7
 
