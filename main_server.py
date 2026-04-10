@@ -143,7 +143,7 @@ async def wan_recv():
 
 
         except Exception as e:
-            print("receive invalid request:", raw_data)
+            # print("receive invalid request:", raw_data)
             continue
 
         try:

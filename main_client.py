@@ -85,9 +85,13 @@ max_sub_len = config["max_sub_len"]
 if max_sub_len > 63:
     sys.exit("max_sub_len cannot be greater than 63!")
 tries = config["retries"] + 1
-send_domain_encode_qname = encode_qname(config["send_domain"].encode().lower())
-chunk_len = get_chunk_len(max_encoded_domain_len, len(send_domain_encode_qname), max_sub_len, DATA_OFFSET_WIDTH,
-                          len(client_id_bytes))
+
+send_doms_with_chunk_len_list = []
+for send_domain in config["send_domains"]:
+    sdeq = encode_qname(send_domain.encode().lower())
+    send_doms_with_chunk_len_list.append(
+        (sdeq, get_chunk_len(max_encoded_domain_len, len(sdeq), max_sub_len, DATA_OFFSET_WIDTH,
+                             len(client_id_bytes))))
 
 last_h_addr: tuple | None = None
 
@@ -147,6 +151,7 @@ async def h_recv(my_public_ip: str):
     info_offset = random.randint(0, TOTAL_DATA_OFFSET_MINUS_ONE)
     send_ip_index = random.randint(0, len(dns_ips) - 1)
     queue_index = random.randint(0, len(queues_list) - 1)
+    send_domain_index = random.randint(0, len(send_doms_with_chunk_len_list) - 1)
 
     info_raw_data = b32encode_nopad_lower(bytes_xor(
         socket.inet_pton(socket.AF_INET, my_public_ip) + wan_main_socket_port.to_bytes(2,
@@ -178,12 +183,14 @@ async def h_recv(my_public_ip: str):
         if not raw_data:
             continue
 
-        final_domains = get_base32_final_domains(raw_data, data_offset, chunk_len, send_domain_encode_qname,
+        final_domains = get_base32_final_domains(raw_data, data_offset, send_domain_index,
+                                                 send_doms_with_chunk_len_list,
                                                  max_sub_len, DATA_OFFSET_WIDTH, max_encoded_domain_len,
                                                  client_id_bytes)
         if not final_domains:
             continue
         data_offset = (data_offset + 1) & TOTAL_DATA_OFFSET_MINUS_ONE
+        send_domain_index = (send_domain_index + len(final_domains)) % len(send_doms_with_chunk_len_list)
 
         if last_h_addr != addr_h:
             last_h_addr = addr_h
@@ -196,7 +203,8 @@ async def h_recv(my_public_ip: str):
             contain_info = True
             sub_info = client_id_bytes + number_to_base32_lower(info_offset, DATA_OFFSET_WIDTH) + info_raw_header_data
             info_offset = (info_offset + 1) & TOTAL_DATA_OFFSET_MINUS_ONE
-            info_domain_bytes = insert_dots(sub_info, max_sub_len) + send_domain_encode_qname
+            info_domain_bytes = insert_dots(sub_info, max_sub_len) + send_doms_with_chunk_len_list[send_domain_index][0]
+            send_domain_index = (send_domain_index + 1) % len(send_doms_with_chunk_len_list)
 
             send_socks_datas.append((send_sock_index, send_sock_list[send_sock_index],
                                      build_dns_query(info_domain_bytes, query_id, send_query_type_int)))

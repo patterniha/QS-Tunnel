@@ -1,7 +1,7 @@
 {
   "mode": "n-1",
   "dns_ips": [],
-  "send_domain": "",
+  "send_domains": [],
   "fake_send_ip": "",
   "fake_send_port": 443,
   "h_in_address": "127.0.0.1:10443",

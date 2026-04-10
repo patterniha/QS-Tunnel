@@ -33,14 +33,12 @@ def get_chunk_len(max_encoded_domain_len: int, qname_encoded_len: int, max_sub_l
     return chunk_len
 
 
-def get_base32_final_domains(data: bytes, data_offset: int, chunk_len: int, qname_encoded: bytes, max_sub_len: int,
+def get_base32_final_domains(data: bytes, data_offset: int, send_domain_with_chunk_idx: int,
+                             send_domain_with_chunk_list: list, max_sub_len: int,
                              data_offset_width: int,
                              max_encoded_domain_len: int, client_id_bytes: bytes) -> \
         list[bytes]:
     data = b32encode_nopad_lower(data)
-    if (len(data) + chunk_len - 1) // chunk_len > 64:
-        print("ERROR: max_domain_len is too small, packet is not sent, len:", len(data))
-        return []
     final_b_domains = []
     i = 0
     c_loop = True
@@ -48,6 +46,11 @@ def get_base32_final_domains(data: bytes, data_offset: int, chunk_len: int, qnam
     len_data = len(data)
     data_offset_bytes = number_to_base32_lower(data_offset, data_offset_width)
     while c_loop:
+        if i == 64:
+            print("ERROR: max_domain_len is too small, packet is not sent, len:", len(data))
+            return []
+        qname_encoded, chunk_len = send_domain_with_chunk_list[send_domain_with_chunk_idx]
+        send_domain_with_chunk_idx = (send_domain_with_chunk_idx + 1) % len(send_domain_with_chunk_list)
         chunk_data = data[s_index:s_index + chunk_len]
         s_index += chunk_len
         if s_index < len_data:
