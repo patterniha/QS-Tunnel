@@ -12,5 +12,6 @@
   "my_public_ip": "ezping",
   "send_query_type_int": 1,
   "packets_send_interval": 0.001,
+  "packets_wait_time_limit": 1.0,
   "info_encryption_pass": ""
 }

@@ -20,8 +20,6 @@ PACKETS_QUEUE_SIZE = 1024
 
 DATA_OFFSET_WIDTH = 3
 
-DROP_DELAYED_PACKETS_TIME = 1
-
 TOTAL_CLIENT_IDS = 1 << 5 * CLIENT_ID_WIDTH
 
 TOTAL_DATA_OFFSET = 1 << 5 * DATA_OFFSET_WIDTH
@@ -47,6 +45,8 @@ async def accurate_sleep(delay: float):
 
 with open(os.path.join(os.path.dirname(sys.argv[0]), "config_client.json")) as f:
     config = json.loads(f.read())
+
+packets_wait_time_limit = config["packets_wait_time_limit"]
 
 packets_send_interval = config["packets_send_interval"]
 
@@ -108,7 +108,7 @@ async def wan_send_from_queue(queue: asyncio.Queue):
     loop = asyncio.get_running_loop()
     while True:
         send_socks_datas, send_ip_str, entry_time, curr_try, contain_info = await queue.get()
-        if loop.time() - entry_time > DROP_DELAYED_PACKETS_TIME:
+        if loop.time() - entry_time > packets_wait_time_limit:
             print("drop delayed packet")
             continue
 
@@ -128,7 +128,7 @@ async def wan_send_from_queue(queue: asyncio.Queue):
                 print("wan_send_sock send error:", e, send_ip_str, send_sock)
                 send_sock.close()
                 while True:
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(packets_wait_time_limit)
                     if send_sock_list[send_sock_index] != send_sock:
                         break
                     try:
